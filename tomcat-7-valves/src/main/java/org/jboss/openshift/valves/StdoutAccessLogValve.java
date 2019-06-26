@@ -24,10 +24,35 @@ import java.util.logging.Logger;
  */
 public class StdoutAccessLogValve extends AccessLogValve {
 
+    private static final String VALVE_INFO = StdoutAccessLogValve.class.getName();
     Logger log = Logger.getLogger(this.getClass().getName());
 
+    public StdoutAccessLogValve() {
+        // AccessLogValve#rotatable is true by default while we need false to avoid
+        // invocation of AccessLogValve#restore method in AccessLogValve#startInternal
+        // because AccessLogValve#restore method works with files
+        rotatable = false;
+    }
+
+    @Override
+    public void setRotatable(boolean rotatable) {
+        // Prevent setting rotatable to true to avoid
+        // invocation of AccessLogValve#restore method in AccessLogValve#startInternal
+        // because AccessLogValve#restore method works with files
+    }
+
+    @Override
+    public String getInfo() {
+        return VALVE_INFO;
+    }
+
+    @Override
     public void log(String message) {
         log.info(message);
     }
 
+    @Override
+    protected synchronized void open() {
+        // Nothing to do. Overridden to avoid creation of file
+    }
 }
